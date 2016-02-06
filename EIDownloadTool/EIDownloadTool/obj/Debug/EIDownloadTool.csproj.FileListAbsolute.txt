@@ -1,9 +1,0 @@
-C:\Users\um\Documents\Visual Studio 2013\Projects\Crack\EIDownloadTool\EIDownloadTool\bin\Debug\EIDownloadTool.exe.config
-C:\Users\um\Documents\Visual Studio 2013\Projects\Crack\EIDownloadTool\EIDownloadTool\bin\Debug\EIDownloadTool.exe
-C:\Users\um\Documents\Visual Studio 2013\Projects\Crack\EIDownloadTool\EIDownloadTool\bin\Debug\EIDownloadTool.pdb
-C:\Users\um\Documents\Visual Studio 2013\Projects\Crack\EIDownloadTool\EIDownloadTool\obj\Debug\EIDownloadTool.csprojResolveAssemblyReference.cache
-C:\Users\um\Documents\Visual Studio 2013\Projects\Crack\EIDownloadTool\EIDownloadTool\obj\Debug\EIDownloadTool.Form1.resources
-C:\Users\um\Documents\Visual Studio 2013\Projects\Crack\EIDownloadTool\EIDownloadTool\obj\Debug\EIDownloadTool.Properties.Resources.resources
-C:\Users\um\Documents\Visual Studio 2013\Projects\Crack\EIDownloadTool\EIDownloadTool\obj\Debug\EIDownloadTool.csproj.GenerateResource.Cache
-C:\Users\um\Documents\Visual Studio 2013\Projects\Crack\EIDownloadTool\EIDownloadTool\obj\Debug\EIDownloadTool.exe
-C:\Users\um\Documents\Visual Studio 2013\Projects\Crack\EIDownloadTool\EIDownloadTool\obj\Debug\EIDownloadTool.pdb
