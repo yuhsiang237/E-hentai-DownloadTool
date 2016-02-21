@@ -19,90 +19,113 @@ namespace EIDownloadTool
     {
         Queue<String> Pages = new Queue<string>();
         Queue<String> LinkURL = new Queue<string>();
-        String donwloadTile="";
+        String donwloadTile = "";
         String folder;
-
-        public   Form1()
+        private CookieContainer cc;
+        private SpWebClient spwc;
+        private string webtoken;
+        string ret = "";
+        public Form1()
         {
             InitializeComponent();
             CheckForIllegalCrossThreadCalls = false;
+            this.cc = new CookieContainer();
+            this.spwc = new SpWebClient(cc);
+            this.spwc.Headers.Add("User-Agent", "User-Agent: Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/48.0.2564.97 Safari/537.36");
         }
 
 
 
 
-        public int loadPagesCount(String url,Object senser)
+        public int loadPagesCount(String url, Object senser)
         {
-        
+
             ((Button)senser).Text = "加載頁面中...";
             ((Button)senser).Enabled = false;
             int pagesCount = 1;
             byte[] byteArray;
             String data;
+
             try
             {
-                //取得下載標題
-
+               
+                //=====
                 HttpWebClient title = new HttpWebClient(new CookieContainer());
                 title.Encoding = Encoding.UTF8;
+
+
                 byteArray = title.DownloadData(url);
-                 data = Encoding.UTF8.GetString(byteArray);
+                data = Encoding.UTF8.GetString(byteArray);
 
                 int first = data.IndexOf("<title>");
                 int last = data.IndexOf("</title>");
 
                 donwloadTile = data.Substring(first + 7, last - first - 7);
-            }catch(Exception e)
+            }
+            catch (Exception e)
             {
 
             }
-           
+
             //取得下載頁數
             Pages.Clear();
             Pages.Enqueue(url);
 
-
             try
             {
-              
-                HttpWebClient download = new HttpWebClient(new CookieContainer());
-                download.Encoding = Encoding.UTF8;
-                byteArray = download.DownloadData(url);
-                data = Encoding.UTF8.GetString(byteArray);
 
-                for (int i = 1; ; i++)
+                //check final / char
+                if ((url[url.Length - 1]) != '/')
                 {
-                    if (data.IndexOf(url + "?p=" + i) > -1)
-                    {
-                        pagesCount++;
-                        Pages.Enqueue(url + "?p=" + i);
-                    }
-                    else
-                    {
-                        break;
-                    }
+                    url += '/';
                 }
 
-                StatusNow.Text = "成功獲取資料，頁數:" + pagesCount.ToString()+"，正在Trace中...";
-             
-                
-                
+                //GET NEW SESSION FIX 20160222
+                ret = spwc.DownloadString(url + "?nw=session", Encoding.UTF8);
+                CookieCollection cookies = cc.GetCookies(new Uri(url));
+                foreach (Cookie cookie in cookies)
+                {
+                    if (cookie.Name == "uconfig")
+                        this.webtoken = cookie.Value;
+                }
+                data = spwc.DownloadString(url, Encoding.UTF8);
+
+                //取得所有p值找最大
+                GC.Collect();
+                int maxPages = 0;
+                for (int i = 1000; ; i--)
+                {
+                    if (data.IndexOf(url + "?p=" + i) != -1)
+                    {
+                        maxPages = i;
+                        break;
+
+                    }
+                }
+                GC.Collect();
+                for (int i = 1; i <= maxPages; i++)
+                {
+                    pagesCount++;
+                    Pages.Enqueue(url + "?p=" + i);
+                }
+                GC.Collect();
+                StatusNow.Text = "成功獲取資料，頁數:" + pagesCount.ToString() + "，正在Trace中...";
             }
-            catch(Exception e)
+            catch (Exception e)
             {
 
             }
             finally
             {
-                      System.Threading.Thread newThread = new System.Threading.Thread(this.ThreadProcLoad);
-                       newThread.Start();
-               
-             }
-         
-           return pagesCount;
+                System.Threading.Thread newThread = new System.Threading.Thread(this.ThreadProcLoad);
+                newThread.Start();
+
+            }
+
+            return pagesCount;
         }
 
-        public  void DownloadFunc(String url, int fileCount, String file)
+        public void DownloadFunc(String url, int fileCount, String file)
         {
             HttpWebRequest httpRequest = (HttpWebRequest)WebRequest.Create(url);
             HttpWebResponse httpResponse = (HttpWebResponse)httpRequest.GetResponse();
@@ -131,17 +154,17 @@ namespace EIDownloadTool
             HackListView.Items.Clear();
             Pages.Clear();
             LinkURL.Clear();
-            loadPagesCount(textbox_MainURL.Text,sender);
+            loadPagesCount(textbox_MainURL.Text, sender);
             //Avoid Memory Leak
             GC.Collect();
         }
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            
-            folder= System.Environment.CurrentDirectory+"\\DownloadFile\\";
-    
-                    
+
+            folder = System.Environment.CurrentDirectory + "\\DownloadFile\\";
+
+
         }
 
         private void ThreadProcLoad()
@@ -153,10 +176,7 @@ namespace EIDownloadTool
             {
                 //LoagPage
 
-                HttpWebClient download = new HttpWebClient(new CookieContainer());
-                download.Encoding = Encoding.UTF8;
-                byte[] byteArray = download.DownloadData(Pages.Dequeue());
-                String data = Encoding.UTF8.GetString(byteArray);
+                String data = spwc.DownloadString(Pages.Dequeue(), Encoding.UTF8);
 
                 //切割圖片網址
                 Match m;
@@ -171,7 +191,7 @@ namespace EIDownloadTool
                     {
                         if (m.Groups[1].ToString().Contains("http://g.e-hentai.org/s/"))
                         {
-                           // this.HackListView.Items.Add(new ListViewItem(new String[] { (HackListView.Items.Count + 1).ToString(), m.Groups[1].ToString() }));
+                            // this.HackListView.Items.Add(new ListViewItem(new String[] { (HackListView.Items.Count + 1).ToString(), m.Groups[1].ToString() }));
                             LinkURL.Enqueue(m.Groups[1].ToString());
                         }
                         m = m.NextMatch();
@@ -189,37 +209,37 @@ namespace EIDownloadTool
                 }
             }
 
-                ProcessBarState.Value = 0;
-                ProcessBarState.Maximum = HackListView.Items.Count;
-     
-                try
-                {
-                    //建立該檔案目錄,若整體長度>260會錯誤! 
-                    System.IO.Directory.CreateDirectory(System.Environment.CurrentDirectory + "\\DownloadFile\\" + donwloadTile);
-                }
-                catch(Exception ex)
-                {
-                    MessageBox.Show("Please change your dir\n請修正你的檔案目錄");
-                    btnGetPages.Enabled = true;
-                    btnGetPages.Text = "開始下載";
-                    return;
-                }
-               
-                for (int i = 0; i < HackListView.Items.Count; i++)
-                {
-                    ProcessBarState.Value++;
-                    Console.WriteLine(HackListView.Items[i].SubItems[1].Text);
-                    DownloadFunc(HackListView.Items[i].SubItems[1].Text, folder + donwloadTile + "\\" + (HackListView.Items[i].SubItems[0].Text + (HackListView.Items[i].SubItems[2].Text)));
-                    StatusNow.Text = "Download(" + (i + 1) + "/" + HackListView.Items.Count +")";
-                }
+            ProcessBarState.Value = 0;
+            ProcessBarState.Maximum = HackListView.Items.Count;
 
-                MessageBox.Show("FINISH!");
-
-
+            try
+            {
+                //建立該檔案目錄,若整體長度>260會錯誤! 
+                System.IO.Directory.CreateDirectory(System.Environment.CurrentDirectory + "\\DownloadFile\\" + donwloadTile);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Please change your dir\n請修正你的檔案目錄");
                 btnGetPages.Enabled = true;
                 btnGetPages.Text = "開始下載";
-            
-     
+                return;
+            }
+
+            for (int i = 0; i < HackListView.Items.Count; i++)
+            {
+                ProcessBarState.Value++;
+                Console.WriteLine(HackListView.Items[i].SubItems[1].Text);
+                DownloadFunc(HackListView.Items[i].SubItems[1].Text, folder + donwloadTile + "\\" + (HackListView.Items[i].SubItems[0].Text + (HackListView.Items[i].SubItems[2].Text)));
+                StatusNow.Text = "Download(" + (i + 1) + "/" + HackListView.Items.Count + ")";
+            }
+
+            MessageBox.Show("FINISH!");
+
+
+            btnGetPages.Enabled = true;
+            btnGetPages.Text = "開始下載";
+
+
         }
 
         private void ThreadDownload()
@@ -262,15 +282,15 @@ namespace EIDownloadTool
                 {
                     Console.WriteLine("The matching operation timed out.");
                 }
-              
+
 
             }
 
-          
+
 
         }
 
-     
+
         public static void DownloadFunc(String url, String downloadPath)
         {
             //Avoid Memory Leak
@@ -296,7 +316,7 @@ namespace EIDownloadTool
 
                 httpResponse.Close();
             }
-            catch(Exception e)
+            catch (Exception e)
             {
 
             }
