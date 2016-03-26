@@ -24,6 +24,7 @@ namespace EIDownloadTool
         private CookieContainer cc;
         private SpWebClient spwc;
         private string webtoken;
+        private System.Threading.Thread newThread;
         string ret = "";
         public Form1()
         {
@@ -117,7 +118,7 @@ namespace EIDownloadTool
             }
             finally
             {
-                System.Threading.Thread newThread = new System.Threading.Thread(this.ThreadProcLoad);
+                newThread = new System.Threading.Thread(this.ThreadProcLoad);
                 newThread.Start();
 
             }
@@ -215,11 +216,17 @@ namespace EIDownloadTool
             try
             {
                 //建立該檔案目錄,若整體長度>260會錯誤! 
+                donwloadTile.Replace("\\","").Replace("/","").Replace(":","").Replace("*","").Replace("?","").Replace("<","").Replace(">","").Replace("|","").Replace("E-Hentai Galleries","");
+                String folder = System.Environment.CurrentDirectory + "\\DownloadFile\\" + donwloadTile;
+                if (folder.Length >250)
+                {
+                    donwloadTile = DateTime.Now.ToString("yyyy-MM-dd-hh-mm");
+                }
                 System.IO.Directory.CreateDirectory(System.Environment.CurrentDirectory + "\\DownloadFile\\" + donwloadTile);
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Please change your dir\n請修正你的檔案目錄");
+                MessageBox.Show("Please change your dir\n請修正你的檔案目錄\n因目錄總長度大於260字元");
                 btnGetPages.Enabled = true;
                 btnGetPages.Text = "開始下載";
                 return;
@@ -325,6 +332,17 @@ namespace EIDownloadTool
         private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             System.Diagnostics.Process.Start("http://never-nop.com");
+        }
+
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+
+            //Close Thread
+            try
+            {
+                newThread.Abort();
+            }
+            catch (Exception ex) { }
         }
     }
 

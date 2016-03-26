@@ -25,3 +25,12 @@ C:\Users\um\Desktop\E-hentai-DownloadTool-master (2)\E-hentai-DownloadTool-maste
 C:\Users\um\Desktop\E-hentai-DownloadTool-master (2)\E-hentai-DownloadTool-master\EIDownloadTool\obj\Debug\EIDownloadTool.Form1.resources
 C:\Users\um\Desktop\E-hentai-DownloadTool-master (2)\E-hentai-DownloadTool-master\EIDownloadTool\obj\Debug\EIDownloadTool.Properties.Resources.resources
 C:\Users\um\Desktop\E-hentai-DownloadTool-master (2)\E-hentai-DownloadTool-master\EIDownloadTool\obj\Debug\EIDownloadTool.csproj.GenerateResource.Cache
+C:\Users\um\Desktop\新增資料夾 (11)\E-hentai-DownloadTool\EIDownloadTool\bin\Debug\EIDownloadTool.exe.config
+C:\Users\um\Desktop\新增資料夾 (11)\E-hentai-DownloadTool\EIDownloadTool\obj\Debug\EIDownloadTool.exe
+C:\Users\um\Desktop\新增資料夾 (11)\E-hentai-DownloadTool\EIDownloadTool\obj\Debug\EIDownloadTool.pdb
+C:\Users\um\Desktop\新增資料夾 (11)\E-hentai-DownloadTool\EIDownloadTool\bin\Debug\EIDownloadTool.exe
+C:\Users\um\Desktop\新增資料夾 (11)\E-hentai-DownloadTool\EIDownloadTool\bin\Debug\EIDownloadTool.pdb
+C:\Users\um\Desktop\新增資料夾 (11)\E-hentai-DownloadTool\EIDownloadTool\obj\Debug\EIDownloadTool.csprojResolveAssemblyReference.cache
+C:\Users\um\Desktop\新增資料夾 (11)\E-hentai-DownloadTool\EIDownloadTool\obj\Debug\EIDownloadTool.Form1.resources
+C:\Users\um\Desktop\新增資料夾 (11)\E-hentai-DownloadTool\EIDownloadTool\obj\Debug\EIDownloadTool.Properties.Resources.resources
+C:\Users\um\Desktop\新增資料夾 (11)\E-hentai-DownloadTool\EIDownloadTool\obj\Debug\EIDownloadTool.csproj.GenerateResource.Cache
