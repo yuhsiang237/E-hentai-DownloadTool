@@ -216,12 +216,13 @@ namespace EIDownloadTool
             try
             {
                 //建立該檔案目錄,若整體長度>260會錯誤! 
-                donwloadTile.Replace("\\","").Replace("/","").Replace(":","").Replace("*","").Replace("?","").Replace("<","").Replace(">","").Replace("|","").Replace("E-Hentai Galleries","");
                 String folder = System.Environment.CurrentDirectory + "\\DownloadFile\\" + donwloadTile;
                 if (folder.Length >250)
                 {
                     donwloadTile = DateTime.Now.ToString("yyyy-MM-dd-hh-mm");
                 }
+                donwloadTile = donwloadTile.Replace("\\", "").Replace("/", "").Replace(":", "").Replace("*", "").Replace("?", "").Replace("<", "").Replace(">", "").Replace("|", "").Replace("E-Hentai Galleries", "");
+               
                 System.IO.Directory.CreateDirectory(System.Environment.CurrentDirectory + "\\DownloadFile\\" + donwloadTile);
             }
             catch (Exception ex)
