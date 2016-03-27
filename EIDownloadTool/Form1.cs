@@ -94,13 +94,12 @@ namespace EIDownloadTool
                 //取得所有p值找最大
                 GC.Collect();
                 int maxPages = 0;
-                for (int i = 1000; ; i--)
+                for (int i = 1000;i >= 0 ; i--)
                 {
                     if (data.IndexOf(url + "?p=" + i) != -1)
                     {
                         maxPages = i;
                         break;
-
                     }
                 }
                 GC.Collect();
