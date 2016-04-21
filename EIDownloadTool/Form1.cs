@@ -191,8 +191,7 @@ namespace EIDownloadTool
                     {
                         if (m.Groups[1].ToString().Contains("http://g.e-hentai.org/s/"))
                         {
-                            // this.HackListView.Items.Add(new ListViewItem(new String[] { (HackListView.Items.Count + 1).ToString(), m.Groups[1].ToString() }));
-                            LinkURL.Enqueue(m.Groups[1].ToString());
+                              LinkURL.Enqueue(m.Groups[1].ToString());
                         }
                         m = m.NextMatch();
                     }
@@ -281,6 +280,10 @@ namespace EIDownloadTool
                         if (m.Groups[1].ToString().Contains("png"))
                         {
                             this.HackListView.Items.Add(new ListViewItem(new String[] { (HackListView.Items.Count + 1).ToString(), m.Groups[1].ToString(), ".png" }));
+                        }
+                        if (m.Groups[1].ToString().Contains("gif"))
+                        {
+                            this.HackListView.Items.Add(new ListViewItem(new String[] { (HackListView.Items.Count + 1).ToString(), m.Groups[1].ToString(), ".gif" }));
                         }
                         m = m.NextMatch();
                     }
