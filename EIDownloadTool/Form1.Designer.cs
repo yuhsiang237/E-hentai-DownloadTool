@@ -40,11 +40,13 @@
             this.L_ImageURL = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.L_Type = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.ProcessBarState = new System.Windows.Forms.ProgressBar();
-            this.label_Page = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.linkLabel1 = new System.Windows.Forms.LinkLabel();
             this.label5 = new System.Windows.Forms.Label();
+            this.DownloadOrignChk = new System.Windows.Forms.CheckBox();
+            this.progressBar1 = new System.Windows.Forms.ProgressBar();
+            this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.statusStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -52,7 +54,7 @@
             // 
             this.textbox_MainURL.Location = new System.Drawing.Point(100, 12);
             this.textbox_MainURL.Name = "textbox_MainURL";
-            this.textbox_MainURL.Size = new System.Drawing.Size(292, 22);
+            this.textbox_MainURL.Size = new System.Drawing.Size(360, 22);
             this.textbox_MainURL.TabIndex = 0;
             // 
             // label1
@@ -66,7 +68,7 @@
             // 
             // btnGetPages
             // 
-            this.btnGetPages.Location = new System.Drawing.Point(398, 11);
+            this.btnGetPages.Location = new System.Drawing.Point(468, 11);
             this.btnGetPages.Name = "btnGetPages";
             this.btnGetPages.Size = new System.Drawing.Size(104, 23);
             this.btnGetPages.TabIndex = 2;
@@ -77,12 +79,12 @@
             // statusStrip1
             // 
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.StatusNow});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 259);
+            this.StatusNow,
+            this.toolStripStatusLabel1});
+            this.statusStrip1.Location = new System.Drawing.Point(0, 256);
             this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Size = new System.Drawing.Size(569, 22);
+            this.statusStrip1.Size = new System.Drawing.Size(592, 22);
             this.statusStrip1.TabIndex = 3;
-            this.statusStrip1.Text = "statusStrip1";
             // 
             // StatusNow
             // 
@@ -107,10 +109,10 @@
             this.L_ImagePages,
             this.L_ImageURL,
             this.L_Type});
-            this.HackListView.Location = new System.Drawing.Point(20, 87);
+            this.HackListView.Location = new System.Drawing.Point(17, 106);
             this.HackListView.MultiSelect = false;
             this.HackListView.Name = "HackListView";
-            this.HackListView.Size = new System.Drawing.Size(522, 140);
+            this.HackListView.Size = new System.Drawing.Size(558, 125);
             this.HackListView.TabIndex = 5;
             this.HackListView.Tag = "taskmgr.exe";
             this.HackListView.UseCompatibleStateImageBehavior = false;
@@ -132,24 +134,16 @@
             // 
             // ProcessBarState
             // 
-            this.ProcessBarState.Location = new System.Drawing.Point(25, 61);
+            this.ProcessBarState.Location = new System.Drawing.Point(22, 60);
             this.ProcessBarState.Name = "ProcessBarState";
-            this.ProcessBarState.Size = new System.Drawing.Size(517, 18);
+            this.ProcessBarState.Size = new System.Drawing.Size(548, 17);
             this.ProcessBarState.TabIndex = 6;
-            // 
-            // label_Page
-            // 
-            this.label_Page.AutoSize = true;
-            this.label_Page.Location = new System.Drawing.Point(294, 71);
-            this.label_Page.Name = "label_Page";
-            this.label_Page.Size = new System.Drawing.Size(0, 12);
-            this.label_Page.TabIndex = 8;
             // 
             // label3
             // 
             this.label3.AutoSize = true;
             this.label3.ForeColor = System.Drawing.Color.Brown;
-            this.label3.Location = new System.Drawing.Point(248, 43);
+            this.label3.Location = new System.Drawing.Point(23, 41);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(294, 12);
             this.label3.TabIndex = 9;
@@ -158,7 +152,7 @@
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(17, 238);
+            this.label4.Location = new System.Drawing.Point(18, 237);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(160, 12);
             this.label4.TabIndex = 10;
@@ -167,7 +161,7 @@
             // linkLabel1
             // 
             this.linkLabel1.AutoSize = true;
-            this.linkLabel1.Location = new System.Drawing.Point(463, 238);
+            this.linkLabel1.Location = new System.Drawing.Point(490, 238);
             this.linkLabel1.Name = "linkLabel1";
             this.linkLabel1.Size = new System.Drawing.Size(83, 12);
             this.linkLabel1.TabIndex = 11;
@@ -179,22 +173,48 @@
             // 
             this.label5.AutoSize = true;
             this.label5.ForeColor = System.Drawing.Color.Brown;
-            this.label5.Location = new System.Drawing.Point(266, 238);
+            this.label5.Location = new System.Drawing.Point(273, 237);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(193, 12);
             this.label5.TabIndex = 12;
             this.label5.Text = "[註]標題長度過長將以日期命名目錄";
             // 
+            // DownloadOrignChk
+            // 
+            this.DownloadOrignChk.AutoSize = true;
+            this.DownloadOrignChk.Checked = true;
+            this.DownloadOrignChk.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.DownloadOrignChk.Location = new System.Drawing.Point(402, 40);
+            this.DownloadOrignChk.Name = "DownloadOrignChk";
+            this.DownloadOrignChk.Size = new System.Drawing.Size(170, 16);
+            this.DownloadOrignChk.TabIndex = 13;
+            this.DownloadOrignChk.Text = "Download Original Source Size";
+            this.DownloadOrignChk.UseVisualStyleBackColor = true;
+            // 
+            // progressBar1
+            // 
+            this.progressBar1.Location = new System.Drawing.Point(454, 82);
+            this.progressBar1.Name = "progressBar1";
+            this.progressBar1.Size = new System.Drawing.Size(116, 18);
+            this.progressBar1.TabIndex = 14;
+            // 
+            // toolStripStatusLabel1
+            // 
+            this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
+            this.toolStripStatusLabel1.Size = new System.Drawing.Size(17, 17);
+            this.toolStripStatusLabel1.Text = "   ";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(569, 281);
+            this.ClientSize = new System.Drawing.Size(592, 278);
+            this.Controls.Add(this.progressBar1);
+            this.Controls.Add(this.DownloadOrignChk);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.linkLabel1);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.label3);
-            this.Controls.Add(this.label_Page);
             this.Controls.Add(this.ProcessBarState);
             this.Controls.Add(this.HackListView);
             this.Controls.Add(this.label2);
@@ -205,7 +225,7 @@
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "Form1";
-            this.Text = "E-hentai Download Tool  Powered By UM Ver.06";
+            this.Text = "E-hentai Download Tool  Powered By UM Ver.07";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
             this.Load += new System.EventHandler(this.Form1_Load);
             this.statusStrip1.ResumeLayout(false);
@@ -228,11 +248,13 @@
         public System.Windows.Forms.ListView HackListView;
         private System.Windows.Forms.ProgressBar ProcessBarState;
         private System.Windows.Forms.ColumnHeader L_Type;
-        private System.Windows.Forms.Label label_Page;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.LinkLabel linkLabel1;
         private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.CheckBox DownloadOrignChk;
+        private System.Windows.Forms.ProgressBar progressBar1;
+        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
     }
 }
 

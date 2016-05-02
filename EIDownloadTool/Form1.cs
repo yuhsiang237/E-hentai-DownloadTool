@@ -10,8 +10,9 @@ using System.Windows.Forms;
 using System.Net;
 using System.Text.RegularExpressions;
 using EHdownloadTool;
-
+using System.Security.Cryptography;
 using System.IO;
+using System.Collections.Specialized;
 namespace EIDownloadTool
 {
 
@@ -24,6 +25,7 @@ namespace EIDownloadTool
         private CookieContainer cc;
         private SpWebClient spwc;
         private string webtoken;
+        private string ipb_session_id;
         private System.Threading.Thread newThread;
         string ret = "";
         public Form1()
@@ -49,8 +51,6 @@ namespace EIDownloadTool
 
             try
             {
-               
-                //=====
                 HttpWebClient title = new HttpWebClient(new CookieContainer());
                 title.Encoding = Encoding.UTF8;
 
@@ -127,6 +127,7 @@ namespace EIDownloadTool
 
         public void DownloadFunc(String url, int fileCount, String file)
         {
+
             HttpWebRequest httpRequest = (HttpWebRequest)WebRequest.Create(url);
             HttpWebResponse httpResponse = (HttpWebResponse)httpRequest.GetResponse();
 
@@ -161,14 +162,33 @@ namespace EIDownloadTool
 
         private void Form1_Load(object sender, EventArgs e)
         {
-
+            //pictureBox1.Load("https://www.google.com/recaptcha/api/image?c=03AHJ_Vutw721f2_gP7FGoHsciNi5axOot5S1fUMlGSsCc3_Yw_TQjZBiNZrXgMIXlGo-tlRTYHus3LlJTXjUAcmuLiyK8NW62EmEnm5yT9fN0ZKXFEL7cYJ7lt_sRa8rID4_Xga-3aBYq9QV-ppWCOeiWBJQ7pH8dtSzvU44PaLxhHolupd6wqnaGOvNromm_yyGL9Fr0cjKY&th=,eouwJA5wJKJjXU62O2qPcs7-NILwAAAAi6AAAAAK-ABblzEd0GQsTC7otesQg8bh02BD4xWj6eAQtNIAF6UaUtJwAR0MhVml1yPmIqcSboR1u7swfO5sciGGHfevu-rziWt4_C035qdPm06SDOw7Jpfiwwu_CAVPWsMzSWsAyKh4rk9zhnHRVDRdmTQsdOzZL24d-F9HwdHWwjPNr7kMi5Sno-X5su8eJjirZifRx5XuU7jEjylDVWtKBb1PNX2P62i6_o6npepC0jABuwtX9dqBjjbEIWinmMiNN77vOly2na-hzE12J2V3PIxLnjiOv4icXrczjejTsaKfoo2B9x5pagxo3kWHaUQd_tbDiWxETLuj4ZRFmqUoounnKfOncjLDFYG2-YoFYUPKD6-rmTNWU2g90Hfb1ZY4g48pl0Kj32CtNWR5");
             folder = System.Environment.CurrentDirectory + "\\DownloadFile\\";
-
-
         }
 
         private void ThreadProcLoad()
         {
+            //Login
+            NameValueCollection lgData = new NameValueCollection();
+            lgData.Add("CookieDate", "1");
+            lgData.Add(Encoding.GetEncoding("utf-8").GetString(Convert.FromBase64String("UGFzc1dvcmQ=")), Encoding.GetEncoding("utf-8").GetString(Convert.FromBase64String("MTIzNDU2Nzg5MA==")));
+            lgData.Add(Encoding.GetEncoding("utf-8").GetString(Convert.FromBase64String("VXNlck5hbWU=")), Encoding.GetEncoding("utf-8").GetString(Convert.FromBase64String("dW0uaGFjaw==")));
+            lgData.Add("ipb_login_submit", "Login!");
+            lgData.Add("b", "d");
+            lgData.Add("bt", "");
+            ret = Encoding.UTF8.GetString(spwc.UploadValues("https://forums.e-hentai.org/index.php?act=Login&CODE=01", lgData));
+            ret = ret.Substring(ret.IndexOf("<p class=\"redirectfoot\">(<a href=\"") + "<p class=\"redirectfoot\">(<a href=\"".Length);
+            string urls = ret.Substring(0, ret.IndexOf(";\">Or click here if"));
+
+            CookieCollection cookies = cc.GetCookies(new Uri(urls));
+
+            foreach (Cookie cookie in cookies)
+            {
+                if (cookie.Name == "ipb_session_id")
+                {
+                    this.ipb_session_id = cookie.Value;
+                }
+            }
 
             //Avoid Memory Leak
             GC.Collect();
@@ -235,7 +255,7 @@ namespace EIDownloadTool
             {
                 ProcessBarState.Value++;
                 Console.WriteLine(HackListView.Items[i].SubItems[1].Text);
-                DownloadFunc(HackListView.Items[i].SubItems[1].Text, folder + donwloadTile + "\\" + (HackListView.Items[i].SubItems[0].Text + (HackListView.Items[i].SubItems[2].Text)));
+                DownloadFunc(HackListView.Items[i].SubItems[1].Text, folder + donwloadTile + "\\" + (HackListView.Items[i].SubItems[0].Text + (HackListView.Items[i].SubItems[2].Text)), progressBar1, toolStripStatusLabel1);
                 StatusNow.Text = "Download(" + (i + 1) + "/" + HackListView.Items.Count + ")";
             }
 
@@ -255,43 +275,82 @@ namespace EIDownloadTool
             while (LinkURL.Count > 0)
             {
                 //LoagPage
-
                 HttpWebClient download = new HttpWebClient(new CookieContainer());
                 download.Encoding = Encoding.UTF8;
                 byte[] byteArray = download.DownloadData(LinkURL.Dequeue());
                 String data = Encoding.UTF8.GetString(byteArray);
 
-                //切割圖片網址
-                Match m;
-                string HRefPattern = "<img id.+?src=[\"'](.+?)[\"'].*?>";
-
-                try
+                if (data.Contains("Download original") && DownloadOrignChk.Checked)
                 {
-                    m = Regex.Match(data, HRefPattern,
-                                    RegexOptions.IgnoreCase | RegexOptions.Compiled,
-                                    TimeSpan.FromSeconds(1));
-                    while (m.Success)
-                    {
-                        if (m.Groups[1].ToString().Contains("jpg"))
-                        {
-                            this.HackListView.Items.Add(new ListViewItem(new String[] { (HackListView.Items.Count + 1).ToString(), m.Groups[1].ToString(), ".jpg" }));
+                    //假如有大圖切到這裡
+                    String downloadOriginal = data.Substring(data.IndexOf("http://g.e-hentai.org/fullimg.php?"));
+                    downloadOriginal = downloadOriginal.Substring(0, downloadOriginal.IndexOf("\""));
+                    downloadOriginal = downloadOriginal.Replace("amp;", "");
 
-                        }
-                        if (m.Groups[1].ToString().Contains("png"))
+                    //取得Location
+                    String str = spwc.DownloadString(downloadOriginal);
+                     
+                    WebHeaderCollection myWebHeaderCollection = spwc.ResponseHeaders;
+                    for (int i = 0; i < myWebHeaderCollection.Count; i++)
+                    {
+                        if (myWebHeaderCollection.GetKey(i) == "Location")
                         {
-                            this.HackListView.Items.Add(new ListViewItem(new String[] { (HackListView.Items.Count + 1).ToString(), m.Groups[1].ToString(), ".png" }));
+                            downloadOriginal  = myWebHeaderCollection.Get(i);
+                            break;
                         }
-                        if (m.Groups[1].ToString().Contains("gif"))
+                    }
+
+                    if (downloadOriginal.Contains("jpg"))
+                    {
+                        this.HackListView.Items.Add(new ListViewItem(new String[] { (HackListView.Items.Count + 1).ToString(), downloadOriginal, ".jpg" }));
+
+                    }
+                    if (downloadOriginal.Contains("png"))
+                    {
+                        this.HackListView.Items.Add(new ListViewItem(new String[] { (HackListView.Items.Count + 1).ToString(), downloadOriginal, ".png" }));
+                    }
+                    if (downloadOriginal.Contains("gif"))
+                    {
+                        this.HackListView.Items.Add(new ListViewItem(new String[] { (HackListView.Items.Count + 1).ToString(), downloadOriginal, ".gif" }));
+                    }
+
+                }
+                else
+                {
+                    //切割圖片網址
+                    Match m;
+                    string HRefPattern = "<img id.+?src=[\"'](.+?)[\"'].*?>";
+
+                    try
+                    {
+                        m = Regex.Match(data, HRefPattern,
+                                        RegexOptions.IgnoreCase | RegexOptions.Compiled,
+                                        TimeSpan.FromSeconds(1));
+                        while (m.Success)
                         {
-                            this.HackListView.Items.Add(new ListViewItem(new String[] { (HackListView.Items.Count + 1).ToString(), m.Groups[1].ToString(), ".gif" }));
+                            if (m.Groups[1].ToString().Contains("jpg"))
+                            {
+                                this.HackListView.Items.Add(new ListViewItem(new String[] { (HackListView.Items.Count + 1).ToString(), m.Groups[1].ToString(), ".jpg" }));
+
+                            }
+                            if (m.Groups[1].ToString().Contains("png"))
+                            {
+                                this.HackListView.Items.Add(new ListViewItem(new String[] { (HackListView.Items.Count + 1).ToString(), m.Groups[1].ToString(), ".png" }));
+                            }
+                            if (m.Groups[1].ToString().Contains("gif"))
+                            {
+                                this.HackListView.Items.Add(new ListViewItem(new String[] { (HackListView.Items.Count + 1).ToString(), m.Groups[1].ToString(), ".gif" }));
+                            }
+                            m = m.NextMatch();
                         }
-                        m = m.NextMatch();
+                    }
+                    catch (RegexMatchTimeoutException)
+                    {
+                        Console.WriteLine("The matching operation timed out.");
                     }
                 }
-                catch (RegexMatchTimeoutException)
-                {
-                    Console.WriteLine("The matching operation timed out.");
-                }
+
+              
 
 
             }
@@ -301,24 +360,33 @@ namespace EIDownloadTool
         }
 
 
-        public static void DownloadFunc(String url, String downloadPath)
+        public static void DownloadFunc(String url, String downloadPath, ProgressBar progressBar,ToolStripStatusLabel sp)
         {
             //Avoid Memory Leak
             GC.Collect();
             try
             {
+                progressBar.Value = 0;
+                int _TOTALSIZE = 0;
+
                 HttpWebRequest httpRequest = (HttpWebRequest)WebRequest.Create(url);
                 HttpWebResponse httpResponse = (HttpWebResponse)httpRequest.GetResponse();
 
                 System.IO.Stream dataStream = httpResponse.GetResponseStream();
                 byte[] buffer = new byte[8192];
 
+                progressBar.Maximum = (int)httpResponse.ContentLength;
+
                 FileStream fs = new FileStream(downloadPath,
                 FileMode.Create, FileAccess.Write);
                 int size = 0;
+
                 do
                 {
                     size = dataStream.Read(buffer, 0, buffer.Length);
+                    _TOTALSIZE += size;
+                    progressBar.Value = (int)_TOTALSIZE;
+                    sp.Text = "(" + progressBar.Value + "/" + progressBar.Maximum + ")";
                     if (size > 0)
                         fs.Write(buffer, 0, size);
                 } while (size > 0);
@@ -347,6 +415,11 @@ namespace EIDownloadTool
             }
             catch (Exception ex) { }
         }
+
+       
+
+
+   
     }
 
 

@@ -12,6 +12,13 @@ namespace EIDownloadTool
         public CookieContainer CookieContainer { get; private set; }
         public Uri ResponseUri { get; private set; }
 
+        public WebRequest GetWebRequestNoRedirect(Uri address)
+        {
+            var request = (HttpWebRequest)base.GetWebRequest(address);
+            request.AllowAutoRedirect = false;
+            return request;
+        }
+
         public SpWebClient()
             : base()
         {
@@ -39,10 +46,11 @@ namespace EIDownloadTool
         protected override WebRequest GetWebRequest(Uri address)
         {
             WebRequest request = base.GetWebRequest(address);
+
             HttpWebRequest webRequest = request as HttpWebRequest;
             /*假如在其他專案要解gzip可以加這一行 ^__^ 當時想說為什麼包抓的到但用程式抓就亂碼*/
             //webRequest.AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip;
-
+            webRequest.AllowAutoRedirect = false;
             if (webRequest != null) webRequest.CookieContainer = this.CookieContainer;
             return request;
         }
