@@ -151,6 +151,7 @@ namespace EIDownloadTool
 
         private void btnGetPages_Click(object sender, EventArgs e)
         {
+            progressBar1.Value = 0;
             ProcessBarState.Value = 0;
             HackListView.Items.Clear();
             Pages.Clear();
@@ -168,27 +169,31 @@ namespace EIDownloadTool
 
         private void ThreadProcLoad()
         {
-            //Login
-            NameValueCollection lgData = new NameValueCollection();
-            lgData.Add("CookieDate", "1");
-            lgData.Add(Encoding.GetEncoding("utf-8").GetString(Convert.FromBase64String("UGFzc1dvcmQ=")), Encoding.GetEncoding("utf-8").GetString(Convert.FromBase64String("MTIzNDU2Nzg5MA==")));
-            lgData.Add(Encoding.GetEncoding("utf-8").GetString(Convert.FromBase64String("VXNlck5hbWU=")), Encoding.GetEncoding("utf-8").GetString(Convert.FromBase64String("dW0uaGFjaw==")));
-            lgData.Add("ipb_login_submit", "Login!");
-            lgData.Add("b", "d");
-            lgData.Add("bt", "");
-            ret = Encoding.UTF8.GetString(spwc.UploadValues("https://forums.e-hentai.org/index.php?act=Login&CODE=01", lgData));
-            ret = ret.Substring(ret.IndexOf("<p class=\"redirectfoot\">(<a href=\"") + "<p class=\"redirectfoot\">(<a href=\"".Length);
-            string urls = ret.Substring(0, ret.IndexOf(";\">Or click here if"));
-
-            CookieCollection cookies = cc.GetCookies(new Uri(urls));
-
-            foreach (Cookie cookie in cookies)
+            if (DownloadOrignChk.Checked)
             {
-                if (cookie.Name == "ipb_session_id")
+                //Login
+                NameValueCollection lgData = new NameValueCollection();
+                lgData.Add("CookieDate", "1");
+                lgData.Add(Encoding.GetEncoding("utf-8").GetString(Convert.FromBase64String("UGFzc1dvcmQ=")), Encoding.GetEncoding("utf-8").GetString(Convert.FromBase64String("MTIzNDU2Nzg5MA==")));
+                lgData.Add(Encoding.GetEncoding("utf-8").GetString(Convert.FromBase64String("VXNlck5hbWU=")), Encoding.GetEncoding("utf-8").GetString(Convert.FromBase64String("dW0uaGFjaw==")));
+                lgData.Add("ipb_login_submit", "Login!");
+                lgData.Add("b", "d");
+                lgData.Add("bt", "");
+                ret = Encoding.UTF8.GetString(spwc.UploadValues("https://forums.e-hentai.org/index.php?act=Login&CODE=01", lgData));
+                ret = ret.Substring(ret.IndexOf("<p class=\"redirectfoot\">(<a href=\"") + "<p class=\"redirectfoot\">(<a href=\"".Length);
+                string urls = ret.Substring(0, ret.IndexOf(";\">Or click here if"));
+
+                CookieCollection cookies = cc.GetCookies(new Uri(urls));
+
+                foreach (Cookie cookie in cookies)
                 {
-                    this.ipb_session_id = cookie.Value;
+                    if (cookie.Name == "ipb_session_id")
+                    {
+                        this.ipb_session_id = cookie.Value;
+                    }
                 }
             }
+           
 
             //Avoid Memory Leak
             GC.Collect();
@@ -209,7 +214,8 @@ namespace EIDownloadTool
                                     TimeSpan.FromSeconds(1));
                     while (m.Success)
                     {
-                        if (m.Groups[1].ToString().Contains("http://g.e-hentai.org/s/"))
+                        Console.WriteLine(m.Groups[1].ToString());
+                        if (m.Groups[1].ToString().Contains("https://e-hentai.org/s/"))
                         {
                               LinkURL.Enqueue(m.Groups[1].ToString());
                         }
@@ -283,7 +289,7 @@ namespace EIDownloadTool
                 if (data.Contains("Download original") && DownloadOrignChk.Checked)
                 {
                     //假如有大圖切到這裡
-                    String downloadOriginal = data.Substring(data.IndexOf("http://g.e-hentai.org/fullimg.php?"));
+                    String downloadOriginal = data.Substring(data.IndexOf("https://e-hentai.org/fullimg.php?"));
                     downloadOriginal = downloadOriginal.Substring(0, downloadOriginal.IndexOf("\""));
                     downloadOriginal = downloadOriginal.Replace("amp;", "");
 
