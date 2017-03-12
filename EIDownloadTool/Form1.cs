@@ -28,6 +28,7 @@ namespace EIDownloadTool
         private string ipb_session_id;
         private System.Threading.Thread newThread;
         string ret = "";
+        int countall = 0;
         public Form1()
         {
             InitializeComponent();
@@ -47,7 +48,7 @@ namespace EIDownloadTool
             ((Button)senser).Enabled = false;
             int pagesCount = 1;
             byte[] byteArray;
-            String data;
+            String data = "";
 
             try
             {
@@ -61,11 +62,42 @@ namespace EIDownloadTool
                 int first = data.IndexOf("<title>");
                 int last = data.IndexOf("</title>");
 
+               
                 donwloadTile = data.Substring(first + 7, last - first - 7);
+
+                first = data.IndexOf(">Length:</td><td class=\"gdt2\">");
+                last = data.IndexOf("pages</t");
+
+                string downloadAllCount = data.Substring(first+ ">Length:</td><td class=\"gdt2\">".Length, last - first - ">Length:</td><td class=\"gdt2\">".Length);
+
+                countall = int.Parse(downloadAllCount);
+
+
+                Console.WriteLine(countall);
             }
             catch (Exception e)
             {
 
+            }
+
+            try
+            {
+                //建立該檔案目錄,若整體長度>260會錯誤! 
+                String folder = System.Environment.CurrentDirectory + "\\DownloadFile\\" + donwloadTile;
+                if (folder.Length > 250)
+                {
+                    donwloadTile = DateTime.Now.ToString("yyyy-MM-dd-hh-mm");
+                }
+                donwloadTile = donwloadTile.Replace("\\", "").Replace("/", "").Replace(":", "").Replace("*", "").Replace("?", "").Replace("<", "").Replace(">", "").Replace("|", "").Replace("E-Hentai Galleries", "");
+
+                System.IO.Directory.CreateDirectory(System.Environment.CurrentDirectory + "\\DownloadFile\\" + donwloadTile);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Please change your dir\n請修正你的檔案目錄\n因目錄總長度大於260字元");
+                btnGetPages.Enabled = true;
+                btnGetPages.Text = "開始下載";
+                return 0 ;
             }
 
             //取得下載頁數
@@ -74,27 +106,9 @@ namespace EIDownloadTool
 
             try
             {
-
-                //check final / char
-                if ((url[url.Length - 1]) != '/')
-                {
-                    url += '/';
-                }
-
-                //GET NEW SESSION FIX 20160222
-                ret = spwc.DownloadString(url + "?nw=session", Encoding.UTF8);
-                CookieCollection cookies = cc.GetCookies(new Uri(url));
-                foreach (Cookie cookie in cookies)
-                {
-                    if (cookie.Name == "uconfig")
-                        this.webtoken = cookie.Value;
-                }
-                data = spwc.DownloadString(url, Encoding.UTF8);
-
-                //取得所有p值找最大
-                GC.Collect();
+             
                 int maxPages = 0;
-                for (int i = 1000;i >= 0 ; i--)
+                for (int i = 1000; i >= 0; i--)
                 {
                     if (data.IndexOf(url + "?p=" + i) != -1)
                     {
@@ -110,10 +124,37 @@ namespace EIDownloadTool
                 }
                 GC.Collect();
                 StatusNow.Text = "成功獲取資料，頁數:" + pagesCount.ToString() + "，正在Trace中...";
+
+                //check final / char
+                if ((url[url.Length - 1]) != '/')
+                {
+                    url += '/';
+                }
+
+                //取得所有p值找最大
+                GC.Collect();
+
+                Console.WriteLine(url);
+
+                data = spwc.DownloadString(url, Encoding.UTF8);
+                Console.WriteLine(data);
+
+                data = spwc.DownloadString(url, Encoding.UTF8);
+
+               // GET NEW SESSION FIX 20160222
+                ret = spwc.DownloadString(url + "?nw=session", Encoding.UTF8);
+                CookieCollection cookies = cc.GetCookies(new Uri(url));
+                foreach (Cookie cookie in cookies)
+                {
+                    if (cookie.Name == "uconfig")
+                        this.webtoken = cookie.Value;
+                }
+
+
             }
             catch (Exception e)
             {
-
+                Console.WriteLine(e);
             }
             finally
             {
@@ -234,48 +275,27 @@ namespace EIDownloadTool
                 }
             }
 
-            ProcessBarState.Value = 0;
-            ProcessBarState.Maximum = HackListView.Items.Count;
+            //ProcessBarState.Value = 0;
+            //ProcessBarState.Maximum = HackListView.Items.Count;
 
-            try
-            {
-                //建立該檔案目錄,若整體長度>260會錯誤! 
-                String folder = System.Environment.CurrentDirectory + "\\DownloadFile\\" + donwloadTile;
-                if (folder.Length >250)
-                {
-                    donwloadTile = DateTime.Now.ToString("yyyy-MM-dd-hh-mm");
-                }
-                donwloadTile = donwloadTile.Replace("\\", "").Replace("/", "").Replace(":", "").Replace("*", "").Replace("?", "").Replace("<", "").Replace(">", "").Replace("|", "").Replace("E-Hentai Galleries", "");
-               
-                System.IO.Directory.CreateDirectory(System.Environment.CurrentDirectory + "\\DownloadFile\\" + donwloadTile);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Please change your dir\n請修正你的檔案目錄\n因目錄總長度大於260字元");
-                btnGetPages.Enabled = true;
-                btnGetPages.Text = "開始下載";
-                return;
-            }
+           
+            //for (int i = 0; i < HackListView.Items.Count; i++)
+            //{
+            //    ProcessBarState.Value++;
+            //    Console.WriteLine(HackListView.Items[i].SubItems[1].Text);
+            //    DownloadFunc(HackListView.Items[i].SubItems[1].Text, folder + donwloadTile + "\\" + (HackListView.Items[i].SubItems[0].Text + (HackListView.Items[i].SubItems[2].Text)), progressBar1, toolStripStatusLabel1);
+            //    StatusNow.Text = "Download(" + (i + 1) + "/" + HackListView.Items.Count + ")";
+            //}
 
-            for (int i = 0; i < HackListView.Items.Count; i++)
-            {
-                ProcessBarState.Value++;
-                Console.WriteLine(HackListView.Items[i].SubItems[1].Text);
-                DownloadFunc(HackListView.Items[i].SubItems[1].Text, folder + donwloadTile + "\\" + (HackListView.Items[i].SubItems[0].Text + (HackListView.Items[i].SubItems[2].Text)), progressBar1, toolStripStatusLabel1);
-                StatusNow.Text = "Download(" + (i + 1) + "/" + HackListView.Items.Count + ")";
-            }
-
-            MessageBox.Show("FINISH!");
-
-
-            btnGetPages.Enabled = true;
-            btnGetPages.Text = "開始下載";
-
+ 
 
         }
 
         private void ThreadDownload()
         {
+            //ProcessBarState.Value = 0;
+            ProcessBarState.Maximum = countall;
+
             //Avoid Memory Leak
             GC.Collect();
             while (LinkURL.Count > 0)
@@ -308,15 +328,21 @@ namespace EIDownloadTool
 
                     if (downloadOriginal.Contains("jpg"))
                     {
+                        DownloadFunc(downloadOriginal, folder + donwloadTile + "\\" + (HackListView.Items.Count + 1).ToString() + ".jpg", progressBar1, toolStripStatusLabel1);
+
                         this.HackListView.Items.Add(new ListViewItem(new String[] { (HackListView.Items.Count + 1).ToString(), downloadOriginal, ".jpg" }));
 
                     }
                     if (downloadOriginal.Contains("png"))
                     {
+                        DownloadFunc(downloadOriginal, folder + donwloadTile + "\\" + (HackListView.Items.Count + 1).ToString() + ".png", progressBar1, toolStripStatusLabel1);
+
                         this.HackListView.Items.Add(new ListViewItem(new String[] { (HackListView.Items.Count + 1).ToString(), downloadOriginal, ".png" }));
                     }
                     if (downloadOriginal.Contains("gif"))
                     {
+                        DownloadFunc(downloadOriginal, folder + donwloadTile + "\\" + (HackListView.Items.Count + 1).ToString() + ".gif", progressBar1, toolStripStatusLabel1);
+
                         this.HackListView.Items.Add(new ListViewItem(new String[] { (HackListView.Items.Count + 1).ToString(), downloadOriginal, ".gif" }));
                     }
 
@@ -336,27 +362,45 @@ namespace EIDownloadTool
                         {
                             if (m.Groups[1].ToString().Contains("jpg"))
                             {
+                                DownloadFunc(m.Groups[1].ToString(), folder + donwloadTile + "\\" + (HackListView.Items.Count + 1).ToString()+".jpg", progressBar1, toolStripStatusLabel1);
+
                                 this.HackListView.Items.Add(new ListViewItem(new String[] { (HackListView.Items.Count + 1).ToString(), m.Groups[1].ToString(), ".jpg" }));
 
                             }
                             if (m.Groups[1].ToString().Contains("png"))
                             {
+                                DownloadFunc(m.Groups[1].ToString(), folder + donwloadTile + "\\" + (HackListView.Items.Count + 1).ToString() + ".png", progressBar1, toolStripStatusLabel1);
+
                                 this.HackListView.Items.Add(new ListViewItem(new String[] { (HackListView.Items.Count + 1).ToString(), m.Groups[1].ToString(), ".png" }));
+                               
                             }
                             if (m.Groups[1].ToString().Contains("gif"))
                             {
+                                DownloadFunc(m.Groups[1].ToString(), folder + donwloadTile + "\\" + (HackListView.Items.Count + 1).ToString() + ".gif", progressBar1, toolStripStatusLabel1);
+
                                 this.HackListView.Items.Add(new ListViewItem(new String[] { (HackListView.Items.Count + 1).ToString(), m.Groups[1].ToString(), ".gif" }));
                             }
                             m = m.NextMatch();
                         }
+                   
+
                     }
                     catch (RegexMatchTimeoutException)
                     {
                         Console.WriteLine("The matching operation timed out.");
                     }
                 }
+                ProcessBarState.Value++;
 
-              
+                if (ProcessBarState.Value == ProcessBarState.Maximum)
+                {
+                    MessageBox.Show("FINISH!");
+
+                    btnGetPages.Enabled = true;
+                    btnGetPages.Text = "開始下載";
+
+                }
+
 
 
             }
